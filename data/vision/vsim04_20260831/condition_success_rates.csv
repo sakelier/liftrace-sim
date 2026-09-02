@@ -1,0 +1,56 @@
+kind,class_name,height_m,speed_mps,successes,trials,p_selected,failure_stage_counts,sources,seed_scope
+dynamic,bridge,1.2,0.5,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,bridge,1.2,2.0,0,4,0.0,"{""target_memory_admission"": 4}","[""repeat_run_01_seed11"", ""repeat_run_02_seed11"", ""repeat_run_03_seed11"", ""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,bridge,2.4,1.0,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,bridge,2.4,1.5,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,bridge,3.6,0.5,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,bridge,3.6,2.0,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,panzer,1.2,0.5,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,panzer,1.2,2.0,0,4,0.0,"{""target_memory_admission"": 4}","[""repeat_run_01_seed11"", ""repeat_run_02_seed11"", ""repeat_run_03_seed11"", ""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,panzer,2.4,1.0,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,panzer,2.4,1.5,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,panzer,3.6,0.5,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,panzer,3.6,2.0,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,pillbox,1.2,0.5,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,pillbox,1.2,2.0,2,4,0.5,"{""none"": 2, ""target_memory_admission"": 2}","[""repeat_run_01_seed11"", ""repeat_run_02_seed11"", ""repeat_run_03_seed11"", ""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,pillbox,2.4,1.0,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,pillbox,2.4,1.5,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,pillbox,3.6,0.5,1,4,0.25,"{""none"": 1, ""target_memory_admission"": 3}","[""repeat_run_01_seed11"", ""repeat_run_02_seed11"", ""repeat_run_03_seed11"", ""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,pillbox,3.6,2.0,0,4,0.0,"{""target_memory_admission"": 4}","[""repeat_run_01_seed11"", ""repeat_run_02_seed11"", ""repeat_run_03_seed11"", ""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,red_cross,1.2,0.5,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,red_cross,1.2,2.0,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,red_cross,2.4,1.0,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,red_cross,2.4,1.5,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,red_cross,3.6,0.5,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,red_cross,3.6,2.0,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,tent,1.2,0.5,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,tent,1.2,2.0,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,tent,2.4,1.0,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,tent,2.4,1.5,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,tent,3.6,0.5,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+dynamic,tent,3.6,2.0,1,1,1.0,"{""none"": 1}","[""sparse30_seed11""]",fixed_seed_11_runtime_repeats
+static,bridge,1.2,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,bridge,1.8,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,bridge,2.4,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,bridge,3.0,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,bridge,3.6,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,panzer,1.2,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,panzer,1.8,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,panzer,2.4,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,panzer,3.0,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,panzer,3.6,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,pillbox,1.2,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,pillbox,1.8,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,pillbox,2.4,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,pillbox,3.0,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,pillbox,3.6,,0,4,0.0,"{""raw_classifier"": 4}","[""repeat_run_01_seed11"", ""repeat_run_02_seed11"", ""repeat_run_03_seed11"", ""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,red_cross,1.2,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,red_cross,1.8,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,red_cross,2.4,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,red_cross,3.0,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,red_cross,3.6,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,tent,1.2,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,tent,1.8,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,tent,2.4,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,tent,3.0,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats
+static,tent,3.6,,1,1,1.0,"{""none"": 1}","[""static25_seed11""]",fixed_seed_11_runtime_repeats

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "source_archive": "liftrace_nav_to_vision_handoff_20260831.zip",
+  "source_archive_sha256": "be7894796375ac05d09055eed2acdd39b4251199046291a9283a4b4bd02a53d5",
+  "generated_file": "condition_success_rates.csv",
+  "observation_count": 73,
+  "condition_count": 55,
+  "dynamic_condition_count": 30,
+  "static_condition_count": 25,
+  "limitations": [
+    "All observations use seed 11; repeats are runtime repeats, not independent seeds.",
+    "Dynamic data cover a sparse subset of class-height-speed combinations.",
+    "Cross-track, yaw/turn, multi-target and P_interrupt surfaces are not measured.",
+    "p_selected is a visual-pipeline selection outcome, not P_interrupt."
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "source_archive": "liftrace_vision_to_navigation_handoff_20260902_v2.zip",
+  "source_archive_sha256": "ac4bd863d6444599c20ea4606c584af93aabcc2ac638811e3c9eb944862b044c",
+  "source_revision": "bdf229693f0747754a3dbda00b38f8aaa339e604",
+  "manifest_files_checked": 126,
+  "authoritative_batches": {
+    "operating_surface": {
+      "name": "B_full100_seed11",
+      "trials": 100
+    },
+    "lateral": {
+      "name": "C_post_fix_seed11",
+      "trials": 25
+    },
+    "motion": {
+      "name": "D_supported16_seed11",
+      "trials": 16
+    }
+  },
+  "simulation_table": "condition_success_rates.csv",
+  "interpretation": {
+    "probability_field": "p_selected",
+    "p_interrupt": null,
+    "performance_status": "DIAGNOSTIC_ONLY_SINGLE_SEED"
+  },
+  "limitations": [
+    "All authoritative V-SIM-04 batches use seed 11; no confidence interval is implied.",
+    "B_full100_seed11 is diagnostic-only because its P95 confirmation processing time exceeds the frozen threshold.",
+    "C_post_fix_seed11 is NOT_GATED and shows lateral asymmetry; partial-frame rows are not valid full-frame observations.",
+    "D_supported16_seed11 covers only 16 supported single-target designs; the other proposed designs are NOT_RUN, not failures.",
+    "Visual p_selected is not navigation P_interrupt; visual-only P_interrupt remains null.",
+    "Historical formal23/sparse30/repeat data are intentionally excluded."
+  ]
+}

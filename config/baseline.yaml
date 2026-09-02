@@ -1,0 +1,230 @@
+schema_version: 6
+model_stage: M2-D-TUNE
+
+rules:
+  source_document: 1786409924213228.pdf
+  scoring_pages: [11, 12, 13]
+  field_outer_size_m: [10.0, 10.0, 4.0]
+  mission_time_limit_s: 600.0
+  cargo_count: 3
+  targets:
+    tent: 1.0
+    pillbox: 1.5
+    bridge: 2.0
+    panzer: 2.5
+    red_cross: 10.0
+  evidence: RULE
+
+search_area:
+  # Mirrors liftrace-controlwork/uav_mission/config/sim.yaml. This is the
+  # current toudi4_copy simulation search region, not a competition rule.
+  min_x_m: -3.6
+  max_x_m: 2.6
+  min_y_m: -2.0
+  max_y_m: 6.0
+  evidence: SIM
+
+coverage:
+  lane_direction: x
+  lane_spacing_m: 1.2
+  altitude_m: 2.2
+  evidence: SIM
+
+camera:
+  # PX4 Gazebo Classic iris_mid360_downward_camera model.sdf.
+  horizontal_fov_rad: 1.047
+  image_width_px: 640
+  image_height_px: 480
+  update_rate_hz: 30.0
+  target_plane_z_m: 0.0
+  mounting: downward
+
+  # The camera link is pitched downward from the vehicle. With vehicle yaw
+  # aligned to the current segment, image width is treated as cross-track and
+  # image height as along-track. This convention must be revisited if mission
+  # yaw is decoupled from segment heading.
+  heading_aligned_with_segment: true
+  cross_track_axis: horizontal
+  evidence: SIM
+
+motion:
+  # Fast-Planner patrol_planner_sim.launch currently limits both values to 1.0.
+  speed_mps: 1.0
+  max_speed_mps: 1.0
+  max_acceleration_mps2: 1.0
+  evidence: SIM
+
+  # M0 uses constant segment speed plus a fixed heading-change penalty.
+  # It does not yet model acceleration profiles or planner smoothing.
+  turn_penalty_s: 1.0
+  turn_penalty_evidence: ASSUMED
+
+  # Entry from takeoff position to the first coverage waypoint is deliberately
+  # excluded until the takeoff/landing region is frozen in the field model.
+  include_entry_segment: false
+
+# M1c demonstration obstacles. These are research fixtures rather than a
+# reconstruction of the competition field; replace them with rule-derived or
+# sensor-derived geometry before drawing strategy conclusions.
+obstacles:
+  horizontal_clearance_m: 0.45
+  vertical_clearance_m: 0.20
+  planning_resolution_m: 0.10
+  allow_diagonal: true
+  evidence: ASSUMED_TEST_FIXTURE
+  fixtures:
+    - {id: wall_west, center_x_m: -1.8, center_y_m: 0.4,
+       size_x_m: 0.7, size_y_m: 2.0, height_m: 2.8}
+    - {id: block_center, center_x_m: 0.2, center_y_m: 3.0,
+       size_x_m: 1.2, size_y_m: 1.0, height_m: 2.6}
+    - {id: wall_east, center_x_m: 1.8, center_y_m: 5.2,
+       size_x_m: 0.6, size_y_m: 1.8, height_m: 3.0}
+
+occlusion:
+  enabled: true
+  sample_rate_hz: 15.0
+  minimum_visible_fraction: 0.60
+  minimum_consecutive_visible_sec: 0.20
+  target_sample_points: center_and_four_corners
+  probability_policy: visibility_gate_then_visual_model
+  evidence: ASSUMED
+
+# Deterministic fixtures for the M1a command-line report. They are not a
+# competition target distribution and are not used by Monte Carlo.
+m1a_demo_targets:
+  - {id: demo_tent, class_name: tent, x_m: 0.0, y_m: 0.4, z_m: 0.0,
+     size_x_m: 1.0, size_y_m: 1.0, evidence: TEST_FIXTURE}
+  - {id: demo_red_cross, class_name: red_cross, x_m: 1.0, y_m: 1.0, z_m: 0.0,
+     size_x_m: 0.35, size_y_m: 0.35, evidence: TEST_FIXTURE}
+
+m1b:
+  target_generation:
+    # Temporary research distribution: one target of every official class,
+    # uniformly placed by rejection sampling. The rulebook does not state this
+    # spatial distribution, so none of these values are RULE evidence.
+    classes:
+      tent:      {count: 1, size_x_m: 1.0,  size_y_m: 1.0}
+      pillbox:   {count: 1, size_x_m: 1.0,  size_y_m: 1.0}
+      bridge:    {count: 1, size_x_m: 1.0,  size_y_m: 1.0}
+      panzer:    {count: 1, size_x_m: 1.0,  size_y_m: 1.0}
+      red_cross: {count: 1, size_x_m: 0.35, size_y_m: 0.35}
+    target_z_m: 0.0
+    minimum_center_separation_m: 1.45
+    maximum_placement_attempts: 10000
+    evidence: ASSUMED
+
+  cue_model:
+    # Exact measured conditions use the authoritative 2026-09-02 B100 table.
+    # Historical formal23/sparse30/repeat batches are intentionally excluded.
+    empirical:
+      enabled: true
+      table: data/vision/vsim04_20260902_v2/condition_success_rates.csv
+      unmeasured_policy: legacy
+      height_scale_m: 1.2
+      speed_scale_mps: 0.5
+      evidence: MEASURED_SINGLE_SEED_11_DIAGNOSTIC_ONLY
+
+    # Explicit fallback for unmeasured conditions. For a geometrically valid pass:
+    # P(Cue)=base_class*(1-exp(-dwell/tau))*exp(-k*normalized_cross^2).
+    # Replace this block with fitted visual-team experiment results.
+    base_probability_by_class:
+      tent: 0.75
+      pillbox: 0.75
+      bridge: 0.75
+      panzer: 0.75
+      red_cross: 0.75
+    dwell_time_constant_s: 0.50
+    cross_track_decay: 1.0
+    probability_override: null
+    evidence: ASSUMED
+
+  monte_carlo:
+    trials: 1000
+    seed: 20260829
+    evidence: EXPERIMENT_CONTROL
+
+m2:
+  mission_deadline_s: 600.0
+  transit_altitude_m: 3.4
+  approach_altitude_m: 1.2
+  horizontal_service_speed_mps: 1.0
+  vertical_service_speed_mps: 0.5
+  verification_hold_s: 2.0
+  delivery_service_s: 3.0
+  verification_probability_by_class:
+    tent: 0.90
+    pillbox: 0.90
+    bridge: 0.90
+    panzer: 0.90
+    red_cross: 0.90
+  delivery_probability_by_class:
+    tent: 0.90
+    pillbox: 0.90
+    bridge: 0.90
+    panzer: 0.90
+    red_cross: 0.90
+  resume_from_interruption_point: true
+  evidence: ASSUMED
+
+scoring:
+  # Scenario evidence, separate from the official point constants in
+  # scoring.py. A null value means the item is not yet modelled and receives
+  # zero rather than an invented score.
+  autonomous_takeoff_qualified: true
+  obstacle_avoidance_qualified: null
+  door_pass_results: []
+  landing_result: not_modelled
+
+  # Existing M2 delivery_success has no impact-point distribution. Until that
+  # is modelled, a success is provisionally treated as innermost-ring (standard
+  # target) or fully-inside (red cross); failure is outside and scores zero.
+  successful_delivery_placement: full_score
+  evidence:
+    point_constants: RULE
+    takeoff_scenario: SIM_BASELINE
+    avoidance_doors_landing: NOT_MODELLED
+    delivery_placement: ASSUMED_OPTIMISTIC
+
+delivery_decision:
+  active_policy: first_seen
+  compare_policies:
+    - first_seen
+    - fixed_priority
+    - reserve_red_cross
+    - dynamic_threshold
+
+  fixed_priority:
+    eligible_classes: [red_cross, panzer, bridge]
+
+  reserve_red_cross:
+    reserved_slots: 1
+
+  dynamic_threshold:
+    # Policy-side forecast, not the realised Cue draw and not a fitted complete
+    # response surface. It is deliberately exposed for sensitivity analysis.
+    future_cue_probability_by_class:
+      tent: 0.40
+      pillbox: 0.40
+      bridge: 0.40
+      panzer: 0.40
+      red_cross: 0.40
+    remaining_progress_exponent: 0.50
+    candidate_provenance:
+      tuning_seed: 20260831
+      validation_seed: 20260901
+      validation_trials: 2000
+      evidence: TUNED_ON_ASSUMED_MODEL_NOT_MEASURED_PROBABILITY
+
+  dynamic_threshold_sweep:
+    uniform_future_cue_prior_values: [0.25, 0.40, 0.55, 0.70, 0.85, 1.00]
+    remaining_progress_exponents: [0.50, 0.75, 1.00, 1.25, 1.50, 2.00]
+    tuning_trials: 500
+    tuning_seed: 20260831
+    validation_top_k: 5
+    validation_trials: 2000
+    validation_seed: 20260901
+    reference_policies: [first_seen, reserve_red_cross]
+
+  evidence:
+    policy_structure: RESEARCH_POLICY
+    future_cue_forecast: TUNED_ASSUMED_MODEL
