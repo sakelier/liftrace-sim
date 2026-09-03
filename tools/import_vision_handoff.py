@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Import the authoritative 2026-09-02 visual-team handoff into liftrace-sim."""
+"""Import the archived D435i 2026-09-02 visual-team handoff into liftrace-sim."""
 
 from __future__ import annotations
 
@@ -130,6 +130,20 @@ def main() -> int:
 
     provenance = {
         "schema_version": 2,
+        "active_for_current_camera": False,
+        "camera_profile": {
+            "name": "d435i_640x480_hfov_1p211",
+            "width": 640,
+            "height": 480,
+            "horizontal_fov_rad": 1.211,
+        },
+        "superseded_by": {
+            "name": "ks2a543_1280x720_calibrated_20260904",
+            "reason": (
+                "camera_geometry_and_runtime_profile_changed; "
+                "rerun A/B/C/D before reuse"
+            ),
+        },
         "source_archive": args.archive.name,
         "source_archive_sha256": archive_digest,
         "source_revision": source_revision,
@@ -158,6 +172,9 @@ def main() -> int:
     )
     (args.output / "README.md").write_text(
         "# V-SIM-04 视觉交付导入（2026-09-02 v2）\n\n"
+        "状态：**ARCHIVED / NOT ACTIVE FOR KS2A543**。该数据由D435i "
+        "`640×480`、`horizontal_fov=1.211 rad`夹具生成，不得与当前"
+        "KS2A543 `1280×720`、`horizontal_fov=1.4459345 rad`基线混用。\n\n"
         "仿真查表仅使用 `B_full100_seed11`；未混入历史 formal23、sparse30 或重复运行。\n\n"
         "- `condition_success_rates.csv`：B100 的 5 类 × 5 高度 × 4 速度精确查表；\n"
         "- `operating_surface_trials.csv`：B100 原始逐试验汇总表；\n"
@@ -165,7 +182,8 @@ def main() -> int:
         "- `motion_trials.csv`：D16 supported 运动实验逐试验表；\n"
         "- `provenance.json`：归档哈希、源版本、批次与解释边界。\n\n"
         f"原始交付包保留在工作区根目录 `{args.archive.name}`，不在数据目录内重复存储。\n\n"
-        "注意：这些结果均为单 seed；`p_selected` 不是导航 `P_interrupt`。\n",
+        "注意：这些结果均为单 seed；`p_selected` 不是导航 `P_interrupt`；当前\n"
+        "`config/baseline.yaml` 已停用该表。\n",
         encoding="utf-8",
     )
     print(f"wrote {args.output} (B={len(b_rows)}, C={len(c_rows)}, D={len(d_rows)}, manifest={manifest_files_checked} files verified)")

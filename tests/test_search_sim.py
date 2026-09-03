@@ -21,6 +21,7 @@ from search_sim import (  # noqa: E402
     evaluate_target_visibility,
     generate_boustrophedon,
     generate_random_targets,
+    load_camera,
     load_parameters,
     observe_target_on_segment,
     run_monte_carlo,
@@ -135,6 +136,15 @@ class VisibilityM1aTest(unittest.TestCase):
         cross, along = self.camera.footprint(2.2)
         self.assertAlmostEqual(cross, 2.0 * 2.2 * math.tan(1.047 / 2.0))
         self.assertAlmostEqual(along, 2.0 * 2.2 * math.tan(expected_vertical / 2.0))
+
+    def test_checked_in_baseline_uses_installed_camera_profile(self):
+        _, config = load_parameters(PROJECT_ROOT / "config" / "baseline.yaml")
+        camera = load_camera(config)
+        self.assertAlmostEqual(camera.horizontal_fov, 1.44593453190313)
+        self.assertEqual((camera.image_width, camera.image_height), (1280, 720))
+        self.assertEqual(camera.update_rate, 30.0)
+        self.assertAlmostEqual(config["camera"]["effective_detection_rate_hz"], 13.705)
+        self.assertFalse(config["m1b"]["cue_model"]["empirical"]["enabled"])
 
     def test_center_target_has_symmetric_visible_interval(self):
         target = Target("center", "tent", Point3(3.0, 0.0, 0.0))

@@ -1,10 +1,12 @@
 schema_version: 1
 experiment: M1b_parameter_sweep
 
-# Height and speed axes match the authoritative V-SIM-04 B100 measurement grid,
-# so every swept operating point uses measured p_selected instead of fallback.
-# Lane spacing remains a research control. The 3.6 m point is below the formal
-# 4 m ceiling but still requires a separate flight safety margin in deployment.
+# Keep the former B100 height/speed grid so old and new studies remain directly
+# comparable. The archived D435i table is disabled under the KS2A543 baseline,
+# therefore these points currently use the explicit ASSUMED fallback rather
+# than measured p_selected. Re-enable empirical lookup only after a KS2A543
+# B100 handoff is imported. Lane spacing remains a research control; 3.6 m also
+# requires a separate flight-safety margin below the 4 m ceiling.
 grid:
   altitude_m: [1.2, 1.8, 2.4, 3.0, 3.6]
   speed_mps: [0.5, 1.0, 1.5, 2.0]

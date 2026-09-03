@@ -8,7 +8,7 @@
 M0：牛耕航迹几何与名义计时校核
 M1a：确定性下视相机视场、航段横向偏差和可见驻留时间
 M1b：受约束随机目标、航段级Cue概率与可复现Monte Carlo
-M1b-V：接入V-SIM-04分类别高度—速度实测查表
+M1b-V：保留V-SIM-04分类别高度—速度查表接口；旧D435i表已停用，等待KS2A543复测
 M1c：矩形障碍物、安全膨胀、航段碰撞、视线遮挡与栅格A*绕行
 M1d：沿实际轨迹按帧采样的目标五点遮挡门控与有效连续可见时间
 M2：Cue中断、升高转运、接近复核、投递、返回断点与超时状态机
@@ -38,7 +38,7 @@ compare_delivery_policies.py  同场景策略对比与配对差值统计
 sweep_delivery_threshold.py   动态阈值二维调参与独立seed验证
 vision_performance.py      V-SIM-04实测条件读取与未测策略
 tools/import_vision_handoff.py  从视觉组交付包重建派生表
-data/vision/vsim04_20260902_v2/  B100/C25/D16 表、来源归档与限制说明
+data/vision/vsim04_20260902_v2/  已停用的D435i B100/C25/D16归档，仅供历史对照
 ```
 
 ## 运行
@@ -89,7 +89,8 @@ uv run python plot_route.py --no-targets
 uv run python plot_vision_heatmap.py
 ```
 
-默认输出为`results/vision_performance_heatmap.svg`。灰色格代表未测条件，不进行插值。
+默认输出为`results/vision_performance_heatmap.svg`。当前默认数据是历史D435i对照，
+不再驱动KS2A543策略仿真；灰色格代表未测条件，不进行插值。
 
 生成搜索时间—Cue率Pareto散点图：
 
@@ -105,7 +106,9 @@ uv run python plot_pareto.py
 
 默认结果写入`results/m1b_sweep.csv`和`results/m1b_sweep.json`。所有参数组合复用相同seed派生出的逐试验目标布置，避免把场景随机差异误认为策略差异。当前只报告“总时间更小、平均Cue率更高”的Pareto前沿，不擅自设定二者的加权系数。
 
-如果Pareto点全部落在某个扫描边界，程序会在JSON和终端中报告边界饱和。实测表目前只有30个稀疏动态条件；未精确命中的组合仍使用暂定模型，因此边界结果仍不能解释为物理最优。
+如果Pareto点全部落在某个扫描边界，程序会在JSON和终端中报告边界饱和。当前KS2A543
+基线尚无同revision B100，所有组合暂时使用明示的`ASSUMED`模型；在新A/B/C/D
+复测完成前，边界结果不能解释为物理最优。
 
 运行测试：
 
@@ -177,4 +180,9 @@ uv run python plot_dynamic_threshold_heatmap.py
 
 M1a只描述理论几何可见，不等于YOLO检出、圆环关联、`map_valid`或稳定Cue，不能用于宣称搜索策略最优。
 
-M1b把目标生成与Cue抽样提升到任务级。精确命中V-SIM-04动态条件时，Cue概率采用固定种子实验的`p_selected`；未测条件回退到原有的`ASSUMED`公式。Cue仍是每次有效可见航段上的Bernoulli事件，不是逐帧YOLO输出。当前尚无多种子、横向偏差、转弯、多目标和真实`P_interrupt`曲面，不能把查表值外推为完整视觉性能。
+M1b把目标生成与Cue抽样提升到任务级。当前相机基线已切换为KS2A543，而仓内
+V-SIM-04表属于D435i旧口径，因此精确查表已关闭，Cue概率统一回退到明示的
+`ASSUMED`公式。Cue仍是每次有效可见航段上的Bernoulli事件，不是逐帧YOLO输出。
+新B100/C25/D运行集和导航实际`P_interrupt`未导入前，不能把这些假设值外推为完整视觉性能。
+旧相机口径下得到的动态阈值候选`p=0.40, gamma=0.50`也已标记为失效；即使重新
+运行调参脚本得到新数值，只要输入仍是回退模型，就只能用于检查程序，不能替代新B100后的正式重调。
