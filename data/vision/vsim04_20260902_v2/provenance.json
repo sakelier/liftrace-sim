@@ -1,5 +1,16 @@
 {
   "schema_version": 2,
+  "active_for_current_camera": false,
+  "camera_profile": {
+    "name": "d435i_640x480_hfov_1p211",
+    "width": 640,
+    "height": 480,
+    "horizontal_fov_rad": 1.211
+  },
+  "superseded_by": {
+    "name": "ks2a543_1280x720_calibrated_20260904",
+    "reason": "camera_geometry_and_runtime_profile_changed; rerun A/B/C/D before reuse"
+  },
   "source_archive": "liftrace_vision_to_navigation_handoff_20260902_v2.zip",
   "source_archive_sha256": "ac4bd863d6444599c20ea4606c584af93aabcc2ac638811e3c9eb944862b044c",
   "source_revision": "bdf229693f0747754a3dbda00b38f8aaa339e604",

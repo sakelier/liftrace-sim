@@ -127,7 +127,7 @@ def render_heatmap(cells: Sequence[Cell], width: int = 1160, height: int = 760) 
 def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     root = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data", type=Path, default=root / "data" / "vision" / "vsim04_20260902_v2" / "condition_success_rates.csv")
+    parser.add_argument("--data", type=Path, default=root / "data" / "vision" / "vsim04_20260904_ks2a543" / "condition_success_rates.csv")
     parser.add_argument("--output", type=Path, default=root / "results" / "vision_performance_heatmap.svg")
     return parser.parse_args(argv)
 

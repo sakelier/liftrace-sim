@@ -15,8 +15,8 @@ from plot_vision_heatmap import (  # noqa: E402
 
 
 class VisionHeatmapTest(unittest.TestCase):
-    def test_checked_in_table_renders_valid_full_grid_svg(self):
-        path = PROJECT_ROOT / "data" / "vision" / "vsim04_20260902_v2" / "condition_success_rates.csv"
+    def test_current_ks2a543_table_renders_valid_full_grid_svg(self):
+        path = PROJECT_ROOT / "data" / "vision" / "vsim04_20260904_ks2a543" / "condition_success_rates.csv"
         cells = load_dynamic_cells(path)
         self.assertEqual(len(cells), 100)
         svg = render_heatmap(cells)

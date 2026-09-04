@@ -1,4 +1,4 @@
-schema_version: 6
+schema_version: 7
 model_stage: M2-D-TUNE
 
 rules:
@@ -27,15 +27,22 @@ search_area:
 coverage:
   lane_direction: x
   lane_spacing_m: 1.2
-  altitude_m: 2.2
-  evidence: SIM
+  # KS2A543 B100 measured all five classes selected at 2.4 m for both
+  # 0.5 and 1.0 m/s. This remains a single-seed policy candidate.
+  altitude_m: 2.4
+  evidence: MEASURED_VISUAL_SINGLE_SEED_POLICY_CANDIDATE
 
 camera:
-  # PX4 Gazebo Classic iris_mid360_downward_camera model.sdf.
-  horizontal_fov_rad: 1.047
-  image_width_px: 640
-  image_height_px: 480
+  # Installed KS2A543 camera baseline. HFOV is derived from the accepted
+  # 1280x720 calibration: 2*atan(1280/(2*725.3510059644434)).
+  profile: ks2a543_1280x720_calibrated_20260904
+  horizontal_fov_rad: 1.44593453190313
+  image_width_px: 1280
+  image_height_px: 720
   update_rate_hz: 30.0
+  # Measured OrangePi ROS+RKNN throughput over the accepted 600 s run. The
+  # geometric camera model still uses the sensor's 30 Hz update rate.
+  effective_detection_rate_hz: 13.705
   target_plane_z_m: 0.0
   mounting: downward
 
@@ -45,7 +52,9 @@ camera:
   # yaw is decoupled from segment heading.
   heading_aligned_with_segment: true
   cross_track_axis: horizontal
-  evidence: SIM
+  calibration_source: liftrace-visionwork/vision_ws/src/camera_sdk/param/calibration_1280x720.yaml
+  calibration_revision: 764cfe924806035c4e2688890f9a7002d48dc642
+  evidence: MEASURED_INTRINSICS_AND_BOARD_600S
 
 motion:
   # Fast-Planner patrol_planner_sim.launch currently limits both values to 1.0.
@@ -82,12 +91,13 @@ obstacles:
 
 occlusion:
   enabled: true
-  sample_rate_hz: 15.0
+  # Use effective board inference output rather than the raw UVC rate.
+  sample_rate_hz: 13.705
   minimum_visible_fraction: 0.60
   minimum_consecutive_visible_sec: 0.20
   target_sample_points: center_and_four_corners
   probability_policy: visibility_gate_then_visual_model
-  evidence: ASSUMED
+  evidence: MEASURED_BOARD_600S_RATE_ASSUMED_OCCLUSION_POLICY
 
 # Deterministic fixtures for the M1a command-line report. They are not a
 # competition target distribution and are not used by Monte Carlo.
@@ -114,15 +124,17 @@ m1b:
     evidence: ASSUMED
 
   cue_model:
-    # Exact measured conditions use the authoritative 2026-09-02 B100 table.
-    # Historical formal23/sparse30/repeat batches are intentionally excluded.
+    # Current-camera 5-class x 5-height x 4-speed table. Each condition has
+    # one seed-11 observation, so the lookup is useful for controlled policy
+    # comparison but is not a calibrated probability distribution.
     empirical:
       enabled: true
-      table: data/vision/vsim04_20260902_v2/condition_success_rates.csv
+      table: data/vision/vsim04_20260904_ks2a543/condition_success_rates.csv
       unmeasured_policy: legacy
       height_scale_m: 1.2
       speed_scale_mps: 0.5
-      evidence: MEASURED_SINGLE_SEED_11_DIAGNOSTIC_ONLY
+      camera_profile: ks2a543_1280x720_calibrated_20260904
+      evidence: MEASURED_KS2A543_SINGLE_SEED_DIAGNOSTIC
 
     # Explicit fallback for unmeasured conditions. For a geometrically valid pass:
     # P(Cue)=base_class*(1-exp(-dwell/tau))*exp(-k*normalized_cross^2).
@@ -136,7 +148,7 @@ m1b:
     dwell_time_constant_s: 0.50
     cross_track_decay: 1.0
     probability_override: null
-    evidence: ASSUMED
+    evidence: ASSUMED_FALLBACK_OUTSIDE_KS2A543_B100_GRID
 
   monte_carlo:
     trials: 1000
@@ -203,17 +215,22 @@ delivery_decision:
     # Policy-side forecast, not the realised Cue draw and not a fitted complete
     # response surface. It is deliberately exposed for sensitivity analysis.
     future_cue_probability_by_class:
-      tent: 0.40
-      pillbox: 0.40
-      bridge: 0.40
-      panzer: 0.40
-      red_cross: 0.40
+      tent: 0.70
+      pillbox: 0.70
+      bridge: 0.70
+      panzer: 0.70
+      red_cross: 0.70
     remaining_progress_exponent: 0.50
     candidate_provenance:
       tuning_seed: 20260831
       validation_seed: 20260901
       validation_trials: 2000
-      evidence: TUNED_ON_ASSUMED_MODEL_NOT_MEASURED_PROBABILITY
+      status: LIGHTWEIGHT_MODEL_CANDIDATE_NOT_ACTIVE
+      source_visual_revision: 3adc9bb
+      validation_mean_official_score: 65.84375
+      reserve_red_cross_mean_official_score: 64.24875
+      paired_score_delta_ci95: [1.425112, 1.764888]
+      evidence: TUNED_WITH_MEASURED_SINGLE_SEED_B100_AND_ASSUMED_TASK_MODEL
 
   dynamic_threshold_sweep:
     uniform_future_cue_prior_values: [0.25, 0.40, 0.55, 0.70, 0.85, 1.00]
