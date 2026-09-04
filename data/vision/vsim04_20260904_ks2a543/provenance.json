@@ -8,9 +8,9 @@
     "horizontal_fov_rad": 1.44593453190313
   },
   "source_archive": "liftrace_vision_to_navigation_handoff_20260904_v3.zip",
-  "source_archive_sha256": "1135a8e987428ef3f4942b416b6e9571f50d60115f39367023f1b700b70eaa37",
-  "source_revision": "3adc9bb7f6eb3d082bf10a7498fcc6b8be7d39d5",
-  "manifest_files_checked": 75,
+  "source_archive_sha256": "194a20945c240f55912bfd3683c1f13e8e89117e925d4d4aa8d43a7bdf3e23c6",
+  "source_revision": "a1bfca99da6bf493e2e2db061b3663e0fc7da308",
+  "manifest_files_checked": 76,
   "authoritative_batches": {
     "operating_surface": {
       "name": "B_full100_seed11",
