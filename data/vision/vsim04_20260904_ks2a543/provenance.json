@@ -7,9 +7,9 @@
     "height": 720,
     "horizontal_fov_rad": 1.44593453190313
   },
-  "source_archive": "liftrace_vision_to_navigation_handoff_20260904_v3.zip",
-  "source_archive_sha256": "194a20945c240f55912bfd3683c1f13e8e89117e925d4d4aa8d43a7bdf3e23c6",
-  "source_revision": "a1bfca99da6bf493e2e2db061b3663e0fc7da308",
+  "source_archive": "liftrace_vision_to_navigation_handoff_20260904_v4.zip",
+  "source_archive_sha256": "de9cdccb6dfa4317be07bd3e72ac05d4fc874ab8c4772ed27974b5af0bb61a98",
+  "source_revision": "6743099a2ef6a2d0468cf7ba608f4e39635b6def",
   "manifest_files_checked": 76,
   "authoritative_batches": {
     "operating_surface": {

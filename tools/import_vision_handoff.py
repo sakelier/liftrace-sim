@@ -15,10 +15,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE_ROOT = PROJECT_ROOT.parent
 DEFAULT_ARCHIVE = (
     WORKSPACE_ROOT / "liftrace-worktrees" / "pr3-premerge-hygiene" /
-    "deliverables" / "liftrace_vision_to_navigation_handoff_20260904_v3.zip"
+    "deliverables" / "liftrace_vision_to_navigation_handoff_20260904_v4.zip"
 )
 DEFAULT_OUTPUT = PROJECT_ROOT / "data" / "vision" / "vsim04_20260904_ks2a543"
-ARCHIVE_ROOT = "liftrace_vision_to_navigation_handoff_20260904_v3"
+ARCHIVE_ROOT = "liftrace_vision_to_navigation_handoff_20260904_v4"
 BATCHES = {
     "operating_surface_trials.csv": "B_full100_seed11",
     "lateral_trials.csv": "C_full25_seed11",
@@ -78,7 +78,9 @@ def main() -> int:
         batch_text: dict[str, str] = {}
         for output_name, batch in BATCHES.items():
             relative = f"02_VSIM04/{batch}/vsim04/vision_search_performance.csv"
-            batch_text[output_name] = _read_text(archive, relative)
+            batch_text[output_name] = _read_text(archive, relative).replace(
+                "\r\n", "\n"
+            ).replace("\r", "\n")
             batch_rows[batch] = _read_csv(archive, relative)
 
     b_rows = batch_rows["B_full100_seed11"]
@@ -114,7 +116,7 @@ def main() -> int:
         "performance_verdict",
     ]
     with condition_path.open("w", encoding="utf-8", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer = csv.DictWriter(stream, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for row in sorted(b_rows, key=lambda item: (
             item["class_name"], float(item["height_m"]), float(item["speed_mps"])
