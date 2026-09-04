@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import html
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Sequence
@@ -22,19 +23,28 @@ class ParetoPoint:
 
 
 def load_points(path: Path) -> list[ParetoPoint]:
+    if path.suffix.lower() == ".json":
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        rows = payload["results"]
+    else:
+        with path.open(encoding="utf-8", newline="") as stream:
+            rows = list(csv.DictReader(stream))
+
     points = []
-    with path.open(encoding="utf-8", newline="") as stream:
-        for row in csv.DictReader(stream):
-            points.append(ParetoPoint(
-                total_time_s=float(row["total_time_s"]),
-                mean_cue_rate=float(row["mean_cue_rate"]),
-                altitude_m=float(row["altitude_m"]),
-                speed_mps=float(row["speed_mps"]),
-                lane_spacing_m=float(row["lane_spacing_m"]),
-                pareto_optimal=row["pareto_optimal"].strip().lower() == "true",
-            ))
+    for row in rows:
+        raw_pareto = row["pareto_optimal"]
+        is_pareto = (raw_pareto if isinstance(raw_pareto, bool)
+                     else raw_pareto.strip().lower() == "true")
+        points.append(ParetoPoint(
+            total_time_s=float(row["total_time_s"]),
+            mean_cue_rate=float(row["mean_cue_rate"]),
+            altitude_m=float(row["altitude_m"]),
+            speed_mps=float(row["speed_mps"]),
+            lane_spacing_m=float(row["lane_spacing_m"]),
+            pareto_optimal=is_pareto,
+        ))
     if not points:
-        raise ValueError("Pareto CSV contains no points")
+        raise ValueError("Pareto input contains no points")
     return points
 
 

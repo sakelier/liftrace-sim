@@ -7,7 +7,7 @@
 | A-M0-001 | 当前搜索区域 | `x=[-3.6,2.6] m`，`y=[-2.0,6.0] m` | SIM | 后续按正式场地可搜索域重建 | Gazebo world解析和正式场地测量 |
 | A-M0-002 | 牛耕航带方向 | 沿x方向飞行，沿y方向换带 | SIM | `x/y`以及后续`45°/135°` | 策略对比实验 |
 | A-M0-003 | 航带间距 | `1.2 m` | SIM | `0.6–2.0 m` | 视觉可靠航带宽度实验 |
-| A-M0-004 | 搜索高度 | `2.2 m` | SIM | `1.2–3.5 m` | 高度—速度视觉性能实验 |
+| A-M0-004 | 搜索高度 | `2.4 m` | MEASURED_VISUAL_SINGLE_SEED_POLICY_CANDIDATE | `1.2–3.6 m` | 整机安全/时限 Gate 与多 seed 边界复测 |
 | A-M0-005 | M0飞行速度 | `1.0 m/s` | SIM | `0.3–1.2 m/s` | Gazebo实际轨迹速度统计 |
 | A-M0-006 | 每次非共线转向耗时 | `1.0 s` | ASSUMED | `0.3–2.0 s` | Fast-Planner转弯实测 |
 | A-M0-007 | 航段内恒速 | 是 | ASSUMED | 与梯形速度模型对照 | 实际setpoint与odom记录 |
@@ -26,12 +26,12 @@
 | A-M1B-004 | 普通目标建模尺寸 | `1.0×1.0 m` | ASSUMED | 按类别分别拟合 | 实物/模型可见图案尺寸 |
 | A-M1B-005 | 红十字建模尺寸 | `0.35×0.35 m` | ASSUMED | 按实测替换 | 实物/模型尺寸 |
 | A-M1B-006 | Cue事件粒度 | 每个有效可见航段一次Bernoulli抽样 | ASSUMED | 多帧相关过程、稳定帧门限 | 视觉节点日志和状态机统计 |
-| A-M1B-007 | Cue概率来源 | 当前仅用类别基准×驻留饱和×横向衰减；旧D435i B100已停用 | ASSUMED_PENDING_KS2A543_B100 | 新B100导入后恢复精确查表 | KS2A543高度—速度—偏差视觉实验 |
-| A-M1B-008 | 类别基准Cue概率 | 各类`0.75` | ASSUMED | `0–1`及分类别拟合 | 视觉组逐类实验 |
+| A-M1B-007 | Cue概率来源 | KS2A543 B100精确格点使用seed11的`p_selected`；格外回退原公式 | MEASURED_SINGLE_SEED_DIAGNOSTIC | 多 seed 后拟合置信区间 | KS2A543 B100与视觉HANDOFF v3 |
+| A-M1B-008 | 类别基准Cue概率 | 格外回退各类`0.75` | ASSUMED_FALLBACK_ONLY | `0–1`及分类别拟合 | B100格外/横偏/遮挡实验 |
 | A-M1B-009 | 驻留时间常数 | `0.50 s` | ASSUMED | `0.1–2.0 s` | 稳定触发所需帧数与实测频率 |
 | A-M1B-010 | Monte Carlo默认控制 | `1000`次，种子`20260829` | EXPERIMENT_CONTROL | 收敛性检查后增加 | 置信区间与运行预算 |
-| A-M1B-011 | 参数扫描高度 | `1.2–3.2 m`离散网格 | EXPERIMENT_CONTROL | 加密网格并加入安全净空 | 正式天花板和碰撞箱约束 |
-| A-M1B-012 | 参数扫描速度 | `0.3–1.0 m/s`离散网格 | EXPERIMENT_CONTROL | 按控制器能力调整 | Fast-Planner实测可达速度 |
+| A-M1B-011 | 参数扫描高度 | `1.2/1.8/2.4/3.0/3.6 m` | EXPERIMENT_CONTROL | 加密网格并加入安全净空 | 正式天花板和碰撞箱约束 |
+| A-M1B-012 | 参数扫描速度 | `0.5/1.0/1.5/2.0 m/s` | EXPERIMENT_CONTROL | 按控制器能力调整 | Fast-Planner实测可达速度 |
 | A-M1B-013 | 参数扫描航带间距 | `0.6–2.0 m`离散网格 | EXPERIMENT_CONTROL | 由可靠视场宽度收缩 | 视觉性能曲面 |
 | A-M1C-001 | 障碍物几何 | 3个轴对齐矩形测试夹具 | ASSUMED_TEST_FIXTURE | 规则场地、Gazebo真值或LiDAR地图 | 正式场地与随机生成器 |
 | A-M1C-002 | 水平安全膨胀 | `0.45 m` | ASSUMED | 无人机碰撞箱半径＋定位/控制裕量 | 机体尺寸与飞行误差实验 |
@@ -53,7 +53,7 @@
 | A-M2-009 | 避障、穿门和降落计分 | 当前未建模，均不自动得分 | NOT_MODELLED | 后续逐项接入 | 完整竞赛航线与事件判定 |
 | A-M2D-001 | 固定优先级集合 | `red_cross, panzer, bridge` | RESEARCH_POLICY | 枚举类别集合 | 公共场景策略对比 |
 | A-M2D-002 | 红十字预留 | 红十字尚未出现时保留`1`件物资 | RESEARCH_POLICY | `0–2`件 | 策略敏感性实验 |
-| A-M2D-003 | 动态阈值未来Cue先验与进度指数 | 历史候选为各类`0.40`、`gamma=0.50`，相机基线变更后已标记失效 | STALE_TUNED_ASSUMED_MODEL | 新KS2A543 B100导入后重调`p=0.25–1.0`、`gamma=0.5–2.0` | 该数值是策略超参数而非已测物理概率，当前不得作为推荐策略 |
+| A-M2D-003 | 动态阈值未来Cue先验与进度指数 | KS2A543候选为各类`0.70`、`gamma=0.50`，未设为主策略 | TUNED_ASSUMED_MODEL_CANDIDATE | `p=0.25–1.0`、`gamma=0.5–2.0` | 该数值是策略超参数而非已测物理概率，须用整机联合仿真复核 |
 | A-M2D-004 | 策略可用类别信息 | 稳定Cue已提供正确目标类别 | ASSUMED_INTERFACE | 加入分类混淆与Unknown | 视觉接口和混淆矩阵 |
 | A-M2D-005 | 公共随机数控制 | 场景、Cue及逐目标复核/投递结果跨策略一致 | EXPERIMENT_CONTROL | 保持 | 固定seed与target_id随机流 |
 

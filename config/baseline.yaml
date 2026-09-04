@@ -27,8 +27,10 @@ search_area:
 coverage:
   lane_direction: x
   lane_spacing_m: 1.2
-  altitude_m: 2.2
-  evidence: SIM
+  # KS2A543 B100 measured all five classes selected at 2.4 m for both
+  # 0.5 and 1.0 m/s. This remains a single-seed policy candidate.
+  altitude_m: 2.4
+  evidence: MEASURED_VISUAL_SINGLE_SEED_POLICY_CANDIDATE
 
 camera:
   # Installed KS2A543 camera baseline. HFOV is derived from the accepted
@@ -122,18 +124,17 @@ m1b:
     evidence: ASSUMED
 
   cue_model:
-    # The 2026-09-02 table is retained as an archived D435i comparison only.
-    # It must not drive the KS2A543 search policy. Re-enable only after an
-    # internally consistent KS2A543 B100 handoff is imported.
+    # Current-camera 5-class x 5-height x 4-speed table. Each condition has
+    # one seed-11 observation, so the lookup is useful for controlled policy
+    # comparison but is not a calibrated probability distribution.
     empirical:
-      enabled: false
-      table: data/vision/vsim04_20260902_v2/condition_success_rates.csv
+      enabled: true
+      table: data/vision/vsim04_20260904_ks2a543/condition_success_rates.csv
       unmeasured_policy: legacy
       height_scale_m: 1.2
       speed_scale_mps: 0.5
-      camera_profile: d435i_640x480_hfov_1p211
-      invalidation_reason: camera_profile_mismatch_with_ks2a543_baseline
-      evidence: SUPERSEDED_D435I_SINGLE_SEED_NOT_ACTIVE
+      camera_profile: ks2a543_1280x720_calibrated_20260904
+      evidence: MEASURED_KS2A543_SINGLE_SEED_DIAGNOSTIC
 
     # Explicit fallback for unmeasured conditions. For a geometrically valid pass:
     # P(Cue)=base_class*(1-exp(-dwell/tau))*exp(-k*normalized_cross^2).
@@ -147,7 +148,7 @@ m1b:
     dwell_time_constant_s: 0.50
     cross_track_decay: 1.0
     probability_override: null
-    evidence: ASSUMED_PENDING_KS2A543_B100
+    evidence: ASSUMED_FALLBACK_OUTSIDE_KS2A543_B100_GRID
 
   monte_carlo:
     trials: 1000
@@ -214,19 +215,22 @@ delivery_decision:
     # Policy-side forecast, not the realised Cue draw and not a fitted complete
     # response surface. It is deliberately exposed for sensitivity analysis.
     future_cue_probability_by_class:
-      tent: 0.40
-      pillbox: 0.40
-      bridge: 0.40
-      panzer: 0.40
-      red_cross: 0.40
+      tent: 0.70
+      pillbox: 0.70
+      bridge: 0.70
+      panzer: 0.70
+      red_cross: 0.70
     remaining_progress_exponent: 0.50
     candidate_provenance:
       tuning_seed: 20260831
       validation_seed: 20260901
       validation_trials: 2000
-      status: STALE_AFTER_CAMERA_BASELINE_CHANGE
-      invalidation_reason: old_camera_geometry_and_empirical_table_were_replaced
-      evidence: HISTORICAL_TUNED_ON_ASSUMED_MODEL_NOT_ACTIVE_RECOMMENDATION
+      status: LIGHTWEIGHT_MODEL_CANDIDATE_NOT_ACTIVE
+      source_visual_revision: 3adc9bb
+      validation_mean_official_score: 65.84375
+      reserve_red_cross_mean_official_score: 64.24875
+      paired_score_delta_ci95: [1.425112, 1.764888]
+      evidence: TUNED_WITH_MEASURED_SINGLE_SEED_B100_AND_ASSUMED_TASK_MODEL
 
   dynamic_threshold_sweep:
     uniform_future_cue_prior_values: [0.25, 0.40, 0.55, 0.70, 0.85, 1.00]

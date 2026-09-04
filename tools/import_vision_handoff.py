@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Import the archived D435i 2026-09-02 visual-team handoff into liftrace-sim."""
+"""Import the current KS2A543 2026-09-04 visual-team handoff."""
 
 from __future__ import annotations
 
@@ -13,13 +13,16 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE_ROOT = PROJECT_ROOT.parent
-DEFAULT_ARCHIVE = WORKSPACE_ROOT / "liftrace_vision_to_navigation_handoff_20260902_v2.zip"
-DEFAULT_OUTPUT = PROJECT_ROOT / "data" / "vision" / "vsim04_20260902_v2"
-ARCHIVE_ROOT = "liftrace_vision_to_navigation_handoff_20260902_v2"
+DEFAULT_ARCHIVE = (
+    WORKSPACE_ROOT / "liftrace-worktrees" / "pr3-premerge-hygiene" /
+    "deliverables" / "liftrace_vision_to_navigation_handoff_20260904_v3.zip"
+)
+DEFAULT_OUTPUT = PROJECT_ROOT / "data" / "vision" / "vsim04_20260904_ks2a543"
+ARCHIVE_ROOT = "liftrace_vision_to_navigation_handoff_20260904_v3"
 BATCHES = {
     "operating_surface_trials.csv": "B_full100_seed11",
-    "lateral_trials.csv": "C_post_fix_seed11",
-    "motion_trials.csv": "D_supported16_seed11",
+    "lateral_trials.csv": "C_full25_seed11",
+    "motion_trials.csv": "D_supported11_seed11",
 }
 
 
@@ -93,9 +96,9 @@ def main() -> int:
     }
     if actual_grid != expected_grid:
         raise ValueError("authoritative B batch does not cover the expected 5x5x4 grid")
-    c_rows = batch_rows["C_post_fix_seed11"]
-    d_rows = batch_rows["D_supported16_seed11"]
-    if len(c_rows) != 25 or len(d_rows) != 16:
+    c_rows = batch_rows["C_full25_seed11"]
+    d_rows = batch_rows["D_supported11_seed11"]
+    if len(c_rows) != 25 or len(d_rows) != 11:
         raise ValueError(f"unexpected C/D row counts: C={len(c_rows)}, D={len(d_rows)}")
 
     args.output.mkdir(parents=True, exist_ok=True)
@@ -129,20 +132,13 @@ def main() -> int:
             })
 
     provenance = {
-        "schema_version": 2,
-        "active_for_current_camera": False,
+        "schema_version": 3,
+        "active_for_current_camera": True,
         "camera_profile": {
-            "name": "d435i_640x480_hfov_1p211",
-            "width": 640,
-            "height": 480,
-            "horizontal_fov_rad": 1.211,
-        },
-        "superseded_by": {
             "name": "ks2a543_1280x720_calibrated_20260904",
-            "reason": (
-                "camera_geometry_and_runtime_profile_changed; "
-                "rerun A/B/C/D before reuse"
-            ),
+            "width": 1280,
+            "height": 720,
+            "horizontal_fov_rad": 1.44593453190313,
         },
         "source_archive": args.archive.name,
         "source_archive_sha256": archive_digest,
@@ -150,19 +146,19 @@ def main() -> int:
         "manifest_files_checked": manifest_files_checked,
         "authoritative_batches": {
             "operating_surface": {"name": "B_full100_seed11", "trials": len(b_rows)},
-            "lateral": {"name": "C_post_fix_seed11", "trials": len(c_rows)},
-            "motion": {"name": "D_supported16_seed11", "trials": len(d_rows)},
+            "lateral": {"name": "C_full25_seed11", "trials": len(c_rows)},
+            "motion": {"name": "D_supported11_seed11", "trials": len(d_rows)},
         },
         "simulation_table": condition_path.name,
         "interpretation": {
             "probability_field": "p_selected", "p_interrupt": None,
-            "performance_status": "DIAGNOSTIC_ONLY_SINGLE_SEED",
+            "performance_status": "DIAGNOSTIC_ONLY_SINGLE_SEED_KS2A543",
         },
         "limitations": [
             "All authoritative V-SIM-04 batches use seed 11; no confidence interval is implied.",
-            "B_full100_seed11 is diagnostic-only because its P95 confirmation processing time exceeds the frozen threshold.",
-            "C_post_fix_seed11 is NOT_GATED and shows lateral asymmetry; partial-frame rows are not valid full-frame observations.",
-            "D_supported16_seed11 covers only 16 supported single-target designs; the other proposed designs are NOT_RUN, not failures.",
+            "B_full100_seed11 is diagnostic-only; its P95 same-host confirmation pipeline is 181.990 ms.",
+            "C_full25_seed11 is NOT_GATED and shows lateral asymmetry; partial-frame rows are not valid full-frame observations.",
+            "D_supported11_seed11 covers only 11 supported single-target designs; the other 39 designs are NOT_RUN, not failures.",
             "Visual p_selected is not navigation P_interrupt; visual-only P_interrupt remains null.",
             "Historical formal23/sparse30/repeat data are intentionally excluded.",
         ],
@@ -171,19 +167,19 @@ def main() -> int:
         json.dumps(provenance, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
     (args.output / "README.md").write_text(
-        "# V-SIM-04 视觉交付导入（2026-09-02 v2）\n\n"
-        "状态：**ARCHIVED / NOT ACTIVE FOR KS2A543**。该数据由D435i "
-        "`640×480`、`horizontal_fov=1.211 rad`夹具生成，不得与当前"
-        "KS2A543 `1280×720`、`horizontal_fov=1.4459345 rad`基线混用。\n\n"
-        "仿真查表仅使用 `B_full100_seed11`；未混入历史 formal23、sparse30 或重复运行。\n\n"
+        "# V-SIM-04 视觉交付导入（2026-09-04 KS2A543）\n\n"
+        "状态：**ACTIVE FOR CURRENT KS2A543 / SINGLE-SEED DIAGNOSTIC**。"
+        "相机为 `1280×720`、`horizontal_fov=1.4459345 rad`；不得与历史"
+        "D435i 表拼接。\n\n"
+        "仿真查表仅使用 `B_full100_seed11`；未混入 formal23、sparse30 或旧相机运行。\n\n"
         "- `condition_success_rates.csv`：B100 的 5 类 × 5 高度 × 4 速度精确查表；\n"
         "- `operating_surface_trials.csv`：B100 原始逐试验汇总表；\n"
-        "- `lateral_trials.csv`：C25 post-fix 横向实验逐试验表；\n"
-        "- `motion_trials.csv`：D16 supported 运动实验逐试验表；\n"
+        "- `lateral_trials.csv`：KS2A543 C25 横向实验逐试验表；\n"
+        "- `motion_trials.csv`：KS2A543 D11 supported 运动实验逐试验表；\n"
         "- `provenance.json`：归档哈希、源版本、批次与解释边界。\n\n"
-        f"原始交付包保留在工作区根目录 `{args.archive.name}`，不在数据目录内重复存储。\n\n"
-        "注意：这些结果均为单 seed；`p_selected` 不是导航 `P_interrupt`；当前\n"
-        "`config/baseline.yaml` 已停用该表。\n",
+        f"源交付包 `{args.archive.name}` 不在数据目录内重复存储；默认导入路径见导入脚本。\n\n"
+        "注意：这些结果均为单 seed；每格的0/1是一次确定性测量，不是置信区间；\n"
+        "`p_selected` 不是导航 `P_interrupt`。\n",
         encoding="utf-8",
     )
     print(f"wrote {args.output} (B={len(b_rows)}, C={len(c_rows)}, D={len(d_rows)}, manifest={manifest_files_checked} files verified)")
