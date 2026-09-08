@@ -1,5 +1,7 @@
 # liftrace-sim
 
+2026-09-09新增[R60实际布设与R61新场地的策略预筛](data/recorded_fields/SEARCH_COMPARISON.md)，使用实测16cm外参、固定机头与9.6m场地。入口`recorded_search_replay.py`独立于下文历史M0/M2默认参数；不把旧2.4m研究基线当作当前整机参数。
+
 面向无人机搜索策略研究的纯Python任务级仿真，不是ROS或catkin工作区。
 
 建模边界和后续阶段以[MODELING_OUTLINE.md](MODELING_OUTLINE.md)为准。当前已完成：
