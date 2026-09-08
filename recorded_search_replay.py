@@ -5,6 +5,7 @@ import argparse,csv,json,math,statistics
 from pathlib import Path
 from search_sim import Point3,SearchArea,M0Parameters,generate_boustrophedon
 from obstacles import Obstacle,route_collisions,plan_route_astar,line_of_sight_blockers
+from installed_camera import project,camera_origin,quaternion_from_rpy
 
 def obstacles_from_scene(scene, tree_radius):
     obstacles=[]
@@ -65,21 +66,8 @@ def build_route(scene,strategy,obstacles,height=1.4,spacing=.7,speed=.5,clearanc
     assert not collisions
     return list(plan.waypoints),{'feasible':True,'original_collisions':original_collisions,'blocked_endpoints':blocked_endpoints,'max_endpoint_shift_m':max(shifts),'replanned_segments':plan.replanned_segment_count}
 
-def in_camera(point,vehicle,camera,offset=-.16):
-    # Actual installed optical axes for body yaw0: optical X=-bodyY,
-    # optical Y=-bodyX, optical Z=-bodyZ. Y-directed paths do NOT rotate it.
-    height=vehicle.z+offset-point.z
-    if height<=0:return False
-    x=-(point.y-vehicle.y)/height;y=-(point.x-vehicle.x)/height
-    k=camera['K'];d=camera['D'];r2=x*x+y*y
-    # Distortion is calibrated within the optical image, not an arbitrary
-    # polynomial mapping of distant off-axis rays back into the frame.
-    if not (0<=k[0]*x+k[2]<camera['width'] and 0<=k[4]*y+k[5]<camera['height']):
-        return False
-    radial=1+d[0]*r2+d[1]*r2*r2+d[4]*r2*r2*r2
-    xd=x*radial+2*d[2]*x*y+d[3]*(r2+2*x*x)
-    yd=y*radial+d[2]*(r2+2*y*y)+2*d[3]*x*y
-    return 0<=k[0]*xd+k[2]<camera['width'] and 0<=k[4]*yd+k[5]<camera['height']
+def in_camera(point,vehicle,camera,offset=-.16,body_quaternion=(0,0,0,1)):
+    return project(point,vehicle,camera,body_quaternion,offset) is not None
 
 def target_samples(target):
     x,y=target['x'],target['y'];center=Point3(x,y,0)
@@ -87,7 +75,7 @@ def target_samples(target):
     yaw=target['yaw'];c,s=math.cos(yaw),math.sin(yaw)
     return [center]+[Point3(x+c*dx-s*dy,y+s*dx+c*dy,0) for dx,dy in ((-.175,-.175),(-.175,.175),(.175,.175),(.175,-.175))]
 
-def evaluate_route(route,targets,camera,obstacles,speed=.5,offset=-.16,sample_hz=10,hold=.2):
+def evaluate_route(route,targets,camera,obstacles,speed=.5,offset=-.16,sample_hz=10,hold=.2,body_quaternion=(0,0,0,1)):
     ids=[t['class'] for t in targets];samples={t['class']:target_samples(t) for t in targets}
     streak={(name,mode):0 for name in ids for mode in ('center','refine')}
     first={(name,mode):None for name in ids for mode in ('center','refine')}
@@ -102,10 +90,10 @@ def evaluate_route(route,targets,camera,obstacles,speed=.5,offset=-.16,sample_hz
         previous_direction=direction;duration=length/speed;count=max(1,math.ceil(duration*sample_hz));dt=duration/count
         for i in range(count):
             f=(i+.5)/count;p=Point3(start.x+(end.x-start.x)*f,start.y+(end.y-start.y)*f,start.z)
-            cam=Point3(p.x,p.y,p.z+offset)
+            cam=Point3(*camera_origin(p,body_quaternion,offset))
             for name,points in samples.items():
-                center=in_camera(points[0],p,camera,offset) and not line_of_sight_blockers(cam,points[0],obstacles)
-                refine=center and all(in_camera(q,p,camera,offset) for q in points) and sum(not line_of_sight_blockers(cam,q,obstacles) for q in points)>=3
+                center=in_camera(points[0],p,camera,offset,body_quaternion) and not line_of_sight_blockers(cam,points[0],obstacles)
+                refine=center and all(in_camera(q,p,camera,offset,body_quaternion) for q in points) and sum(not line_of_sight_blockers(cam,q,obstacles) for q in points)>=3
                 for mode,visible in [('center',center),('refine',refine)]:
                     key=(name,mode);streak[key]=streak[key]+dt if visible else 0
                     if first[key] is None and streak[key]>=hold:first[key]=elapsed+(i+.5)*dt
@@ -116,12 +104,12 @@ def evaluate_route(route,targets,camera,obstacles,speed=.5,offset=-.16,sample_hz
     result['third_center_visible_s']=times[2] if len(times)>=3 else None
     return result
 
-def compare(scene,camera,tree_radius=.4):
+def compare(scene,camera,tree_radius=.4,body_quaternion=(0,0,0,1)):
     obstacles=obstacles_from_scene(scene,tree_radius);rows=[];routes={}
     for strategy in ('x_raw','x_boundary','y_boundary','x_north_first','x_free_intervals'):
         route,meta=build_route(scene,strategy,obstacles);routes[strategy]=[[p.x,p.y,p.z] for p in route]
         for layout in scene['layouts']:
-            metrics=evaluate_route(route,layout['targets'],camera,obstacles)
+            metrics=evaluate_route(route,layout['targets'],camera,obstacles,body_quaternion=body_quaternion)
             rows.append(dict(seed=layout['seed'],strategy=strategy,**meta,**metrics))
     summary=[]
     for name in routes:
@@ -130,11 +118,11 @@ def compare(scene,camera,tree_radius=.4):
                         'mean_center_seen':statistics.mean(r['center_seen'] for r in subset),'mean_refine_seen':statistics.mean(r['refine_seen'] for r in subset),
                         'layouts_three_centers':len(times),'mean_third_center_visible_s':statistics.mean(times) if times else None,
                         'blocked_original_endpoints':subset[0]['blocked_endpoints'],'max_endpoint_shift_m':subset[0]['max_endpoint_shift_m']})
-    return {'scope':'OFFLINE_GEOMETRY_ONLY','assumptions':{'known_static_map':True,'target_positions_used_by_route_builder':False,'tree_bbox_radius_m':tree_radius,'clearance_m':.30,'fc_agl_m':1.40,'camera_offset_z_m':-.16,'body_yaw_rad':0,'nominal_speed_mps':.5,'turn_penalty_s':1.0,'visibility_hold_s':.2,'detector_probability_model':None,'flight_dynamics_or_gate_model':False},'routes':routes,'summary':summary,'rows':rows}
+    return {'scope':'OFFLINE_GEOMETRY_ONLY','assumptions':{'known_static_map':True,'target_positions_used_by_route_builder':False,'tree_bbox_radius_m':tree_radius,'clearance_m':.30,'fc_agl_m':1.40,'camera_offset_z_m':-.16,'body_quaternion_xyzw':list(body_quaternion),'attitude_mode':'constant_sensitivity_not_dynamics','nominal_speed_mps':.5,'turn_penalty_s':1.0,'visibility_hold_s':.2,'detector_probability_model':None,'flight_dynamics_or_gate_model':False},'routes':routes,'summary':summary,'rows':rows}
 
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--scene',type=Path,required=True);parser.add_argument('--camera',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--tree-radius',type=float,default=.4);args=parser.parse_args()
-    result=compare(json.loads(args.scene.read_text()),json.loads(args.camera.read_text()),args.tree_radius)
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--scene',type=Path,required=True);parser.add_argument('--camera',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--tree-radius',type=float,default=.4);parser.add_argument('--roll-deg',type=float,default=0);parser.add_argument('--pitch-deg',type=float,default=0);parser.add_argument('--yaw-deg',type=float,default=0);args=parser.parse_args()
+    result=compare(json.loads(args.scene.read_text()),json.loads(args.camera.read_text()),args.tree_radius,quaternion_from_rpy(*[math.radians(v) for v in (args.roll_deg,args.pitch_deg,args.yaw_deg)]))
     args.output.mkdir(parents=True,exist_ok=True);(args.output/'comparison.json').write_text(json.dumps(result,indent=2))
     with (args.output/'comparison.csv').open('w',newline='') as f:
         writer=csv.DictWriter(f,fieldnames=result['summary'][0]);writer.writeheader();writer.writerows(result['summary'])
