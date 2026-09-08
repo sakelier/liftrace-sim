@@ -70,3 +70,6 @@ python tools/analyze_recorded_attitude.py /path/to/mavros_pose.csv --output resu
 5. 随机化先在轻量仓验证生成器约束，再到相同几何的Gazebo；真值只进评测。几何随机之后才增加定位、跟踪、延迟、光照/反光误差，分清失败来源。只有多个维度和独立种子通过，才逐步支持泛化与鲁棒性结论。
 
 当前最先要做的是seed11端到端验收，而不是扩大搜索策略和场景组合数量。
+
+
+后续高度/有效覆盖/分线路返航的规则核对与设计见[SEARCH_RETURN_PLAN](SEARCH_RETURN_PLAN_20260909.md)。已有柱化功能、未三投回起飞H、129–149秒历史返程耗时已核对；新策略仅列计划，不改变当前几何比较或飞行基线。
