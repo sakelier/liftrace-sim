@@ -1,5 +1,7 @@
 # liftrace-sim
 
+R64最新：固定seed11完整PASS，随后十seed原始7/10完整PASS；5/7/8有靶板压墙，原始数据保留并标注。新增11轮姿态轨迹/相机几何诊断、严格0.80m左右门和独立树箱随机导出；随机门SITL未运行。[报告与工具](docs/R64_BASELINE_AND_RANDOMIZATION.md)。
+
 最新：[整机问题、真实航向与轻量模型合理性复核](docs/ENGINEERING_REVIEW_20260909.md)。新增完整刚性相机姿态投影、日志航向分析和seed11姿态敏感性；57项测试通过。旧M0/M2的2.4m/随航迹转头/3.4m升高转运属于历史研究假设，不能用于当前比赛的水平绕障验收。
 
 2026-09-09新增[R60实际布设与R61新场地的策略预筛](data/recorded_fields/SEARCH_COMPARISON.md)，使用实测16cm外参、固定机头与9.6m场地。入口`recorded_search_replay.py`独立于下文历史M0/M2默认参数；不把旧2.4m研究基线当作当前整机参数。
