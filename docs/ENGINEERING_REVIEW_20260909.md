@@ -80,3 +80,8 @@ python tools/analyze_recorded_attitude.py /path/to/mavros_pose.csv --output resu
 
 
 后续高度/有效覆盖/分线路返航的规则核对与设计见[SEARCH_RETURN_PLAN](SEARCH_RETURN_PLAN_20260909.md)。已有柱化功能、未三投回起飞H、129–149秒历史返程耗时已核对；新策略仅列计划，不改变当前几何比较或飞行基线。
+
+
+## R64后的本次只读策略评审
+
+[时间、航路与辅助相机计划](r64_time_camera/PLAN.md)复用R64实际11布局，排除非法5/7/8进行分组比较但保留原结果；10种路线/姿态条件、实录阶段时间、资源预算均已归档。本次没有新SITL或实现优化。前文R61最优方向为当时数据结论，新的Y/yaw90、0.80m航带仍须对照验证。
